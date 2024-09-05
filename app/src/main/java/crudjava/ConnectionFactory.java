@@ -11,17 +11,11 @@ public class ConnectionFactory {
 
   public static Connection getConnection() {
     try {
-      Connection connection = DriverManager.getConnection(URL,
+      return DriverManager.getConnection(URL,
           USER,
           PASSWORD);
-
-      if (connection != null) {
-        System.out.println("Conexão realizada com sucesso!");
-        return connection;
-      } else {
-        System.out.println("Conexão não realizada!");
-      }
     } catch (SQLException e) {
+      System.out.println("Erro ao criar a conexão");
       e.printStackTrace();
     }
 

@@ -38,3 +38,8 @@ tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
+
+// build.gradle.kts (Kotlin syntax)
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
+}

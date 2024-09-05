@@ -1,28 +1,42 @@
 package crudjava;
 
+import java.util.List;
+
 public class Aluno {
-  private int id;
   private String nome;
+  private List<Nota> notas;
 
-  public Aluno(int id, String nome) {
-    this.id = id;
-    this.nome = nome;
-  }
-
-  public int getId() {
-    return id;
+  public Aluno(String nome) {
+    setNome(nome);
   }
 
   public String getNome() {
     return nome;
   }
 
-  public void setId(int id) {
-    this.id = id;
+  public List<Nota> getNotas() {
+    return notas;
   }
 
   public void setNome(String nome) {
+
+    if (nome.length() > 100 || nome.length() < 1) {
+      this.nome = null;
+      return;
+    }
+
+    for (char c : nome.toCharArray()) {
+      if (!Character.isLetter(c) && c != ' ') {
+        this.nome = null;
+        return;
+      }
+    }
+
     this.nome = nome;
+  }
+
+  public void addNota(Nota nota) {
+    this.notas.add(nota);
   }
 
 }
