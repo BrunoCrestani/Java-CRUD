@@ -81,7 +81,7 @@ public class NotaDAO {
     }
   }
 
-  static void readAllNota(Connection connection) {
+  static void listNota(Connection connection) {
     String query = "SELECT id_nota, nota, id_aluno FROM nota";
 
     try (PreparedStatement pstmt = connection.prepareStatement(query)) {

@@ -21,6 +21,7 @@ public class Menu {
       System.out.println("R - Consultar Aluno");
       System.out.println("U - Atualizar Aluno");
       System.out.println("D - Deletar Aluno");
+      System.out.println("L - Listar tabela Aluno");
       System.out.println("X - Voltar");
 
       try {
@@ -111,6 +112,13 @@ public class Menu {
             running = false;
             System.out.println("Saindo de Aluno...\n");
             break;
+          case 'L':
+            System.out.println("Listando tabela aluno...");
+            System.out.println();
+
+            DatabaseUtil.executeWithConnection(connection -> AlunoDAO.listAluno(connection));
+            break;
+
           default:
             System.out.println("Opção inválida");
             break;
@@ -135,6 +143,7 @@ public class Menu {
       System.out.println("R - Consultar nota");
       System.out.println("U - Atualizar nota");
       System.out.println("D - Deletar nota");
+      System.out.println("L - Listar tabela Nota");
       System.out.println("X - Voltar");
 
       try {
@@ -232,6 +241,12 @@ public class Menu {
           case 'X':
             running = false;
             System.out.println("Saindo de Nota...\n");
+            break;
+          case 'L':
+            System.out.println("Listando tabela nota...");
+            System.out.println();
+
+            DatabaseUtil.executeWithConnection(connection -> NotaDAO.listNota(connection));
             break;
           default:
             System.out.println("Opção inválida");

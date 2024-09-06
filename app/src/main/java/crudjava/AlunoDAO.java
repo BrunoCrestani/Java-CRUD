@@ -106,7 +106,7 @@ public class AlunoDAO {
     }
   }
 
-  static void showAluno(Connection connection) {
+  static void listAluno(Connection connection) {
     String query = "SELECT id_aluno, nome FROM aluno";
 
     try (PreparedStatement pstmt = connection.prepareStatement(query)) {
