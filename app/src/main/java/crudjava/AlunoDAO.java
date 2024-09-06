@@ -7,18 +7,22 @@ import java.sql.SQLException;
 
 public class AlunoDAO {
 
-  static boolean isIDPresent(Connection connection, int id) {
-    String query = "SELECT id_aluno FROM aluno WHERE id_aluno = ?";
+  static boolean isNamePresent(Connection connection, String nome) {
+    String query = "SELECT nome FROM aluno WHERE nome = ?";
 
     try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-      pstmt.setInt(1, id);
+      pstmt.setString(1, nome);
       ResultSet result = pstmt.executeQuery();
 
-      return result.next();
+      if (result.next()) {
+        return true;
+      } else {
+        return false;
+      }
     } catch (SQLException e) {
-      System.out.println("Erro ao executar a query de verificação de ID");
+      System.out.println("Erro ao executar a query de verificação de nome\n");
       e.printStackTrace();
-      return false;
+      return true;
     }
   }
 
@@ -37,15 +41,26 @@ public class AlunoDAO {
 
   static Aluno readAluno(Connection connection, int idAluno) {
     String queryAluno = "SELECT id_aluno, nome FROM aluno WHERE Id_aluno = ?";
-
     String queryNota = "SELECT id_nota, nota FROM nota WHERE id_aluno = ?";
 
-    try (PreparedStatement pstmt = connection.prepareStatement(queryAluno)) {
-      pstmt.setInt(1, idAluno);
-      ResultSet result = pstmt.executeQuery();
+    try (PreparedStatement pstmtAluno = connection.prepareStatement(queryAluno);
+        PreparedStatement pstmtNota = connection.prepareStatement(queryNota)) {
 
-      if (result.next()) {
-        return new Aluno(result.getString("nome"));
+      pstmtAluno.setInt(1, idAluno);
+      ResultSet resultAluno = pstmtAluno.executeQuery();
+
+      if (resultAluno.next()) {
+        Aluno aluno = new Aluno(resultAluno.getString("nome"));
+
+        pstmtNota.setInt(1, idAluno);
+        ResultSet resultNota = pstmtNota.executeQuery();
+
+        while (resultNota.next()) {
+          Nota nota = new Nota(resultNota.getDouble("nota"), idAluno);
+          aluno.addNota(nota);
+        }
+
+        return aluno;
       } else {
         System.out.println("Aluno com ID " + idAluno + " não encontrado.\n");
         return null;
@@ -54,19 +69,6 @@ public class AlunoDAO {
       System.out.println("Erro ao executar a query de consulta de aluno\n");
       e.printStackTrace();
       return null;
-    }
-  }
-
-  static void deleteAluno(Connection connection, int idAluno) {
-    String query = "DELETE FROM aluno WHERE id_aluno = ?";
-
-    try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-      pstmt.setInt(1, idAluno);
-      pstmt.executeUpdate();
-      System.out.println("Sucesso ao executar a query de deleção de aluno");
-    } catch (SQLException e) {
-      System.out.println("Erro ao executar a query de deleção de aluno");
-      e.printStackTrace();
     }
   }
 
@@ -82,10 +84,29 @@ public class AlunoDAO {
       System.out.println("Erro ao executar a query de atualização do aluno " + aluno.getNome());
       e.printStackTrace();
     }
-
   }
 
-  static void consultaAluno(Connection connection) {
+  static void deleteAluno(Connection connection, int idAluno) {
+    String queryAluno = "DELETE FROM aluno WHERE id_aluno = ?";
+    String queryNota = "DELETE FROM nota WHERE id_aluno = ?";
+
+    try (PreparedStatement pstmtNota = connection.prepareStatement(queryNota);
+        PreparedStatement pstmtAluno = connection.prepareStatement(queryAluno)) {
+
+      pstmtNota.setInt(1, idAluno);
+      pstmtNota.executeUpdate();
+
+      pstmtAluno.setInt(1, idAluno);
+      pstmtAluno.executeUpdate();
+
+      System.out.println("Sucesso ao executar a query de deleção do aluno e de suas notas.");
+    } catch (SQLException e) {
+      System.out.println("Erro ao executar a query de deleção de aluno e de suas notas.");
+      e.printStackTrace();
+    }
+  }
+
+  static void showAluno(Connection connection) {
     String query = "SELECT id_aluno, nome FROM aluno";
 
     try (PreparedStatement pstmt = connection.prepareStatement(query)) {

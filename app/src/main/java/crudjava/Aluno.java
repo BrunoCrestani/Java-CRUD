@@ -1,5 +1,6 @@
 package crudjava;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Aluno {
@@ -8,6 +9,7 @@ public class Aluno {
 
   public Aluno(String nome) {
     setNome(nome);
+    this.notas = new ArrayList<>();
   }
 
   public String getNome() {
