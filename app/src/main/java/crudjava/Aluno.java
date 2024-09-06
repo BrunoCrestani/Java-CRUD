@@ -22,16 +22,39 @@ public class Aluno {
 
   public void setNome(String nome) {
 
-    if (nome.length() > 100 || nome.length() < 1) {
-      this.nome = null;
+    if (nome.length() > 100) {
+      System.err.println("Nome muito grande!");
+      System.out.println();
+      return;
+    }
+
+    if (nome.length() < 1) {
+      System.err.println("Nome não pode ser vazio!");
+      System.out.println();
+      return;
+    }
+
+    if (nome.contains("  ")) {
+      System.err.println("Nome não pode conter espaços duplos!");
+      System.out.println();
       return;
     }
 
     for (char c : nome.toCharArray()) {
       if (!Character.isLetter(c) && c != ' ') {
-        this.nome = null;
+        System.err.println("Nome não pode conter números ou caracteres especiais!");
+        System.out.println();
         return;
       }
+    }
+
+    boolean isNamePresent = DatabaseUtil
+        .executeWithConnectionReturn(connection -> AlunoDAO.isNamePresent(connection, nome));
+
+    if (isNamePresent) {
+      System.err.println("Nome já cadastrado!");
+      System.out.println();
+      return;
     }
 
     this.nome = nome;

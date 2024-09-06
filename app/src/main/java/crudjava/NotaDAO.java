@@ -32,7 +32,7 @@ public class NotaDAO {
       ResultSet resultNota = pstmt.executeQuery();
 
       if (resultNota.next()) {
-        Nota nota = new Nota(resultNota.getDouble("nota"), resultNota.getInt("id_aluno"));
+        Nota nota = new Nota(resultNota.getString("nota"), resultNota.getInt("id_aluno"));
 
         pstmtAluno.setInt(1, nota.getIdAluno());
         ResultSet resultAluno = pstmtAluno.executeQuery();
@@ -92,9 +92,10 @@ public class NotaDAO {
         System.out.println("ID do Aluno: " + result.getInt("id_aluno"));
         System.out.println("Resultado: " + result.getDouble("nota"));
       }
+      System.out.println();
 
     } catch (SQLException e) {
-      System.out.println("Erro ao executar a query de consulta da tabela nota");
+      System.out.println("Erro ao executar a query de listagem da tabela nota.");
       e.printStackTrace();
     }
   }

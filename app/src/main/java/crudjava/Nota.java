@@ -1,10 +1,13 @@
 package crudjava;
 
-class Nota {
-  private double resultado;
-  private int idAluno;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-  public Nota(double resultado, int idAluno) {
+class Nota {
+  private double resultado = -1;
+  private int idAluno = 0;
+
+  public Nota(String resultado, int idAluno) {
     setResultado(resultado);
     setIdAluno(idAluno);
   }
@@ -17,17 +20,51 @@ class Nota {
     return idAluno;
   }
 
-  public void setResultado(double resultado) {
+  public void setResultado(String resultadoStr) {
 
-    if (resultado < 0 || resultado > 10) {
-      this.resultado = -1.00;
+    if (!resultadoStr.matches("\\d*\\.?\\d+")) {
+      System.err.println("Nota inválida! Deve conter apenas números e no máximo um .!");
+      System.out.println();
       return;
     }
 
-    this.resultado = Math.floor(resultado * 100) / 100;
+    try {
+      BigDecimal resultado = new BigDecimal(resultadoStr).setScale(2, RoundingMode.DOWN);
+      double resultadoDouble = resultado.doubleValue();
+
+      if (resultadoDouble < 0) {
+        System.err.println("Nota não pode ser negativa!");
+        System.out.println();
+        return;
+      }
+
+      if (resultadoDouble > 10) {
+        System.err.println("Nota não pode ser maior que 10!");
+        System.out.println();
+        return;
+      }
+
+      this.resultado = resultadoDouble;
+    } catch (NumberFormatException e) {
+      System.err.println("Nota inválida!");
+      System.out.println();
+    }
   }
 
   public void setIdAluno(int idAluno) {
+
+    if (idAluno < 0) {
+      System.err.println("ID do aluno não pode ser negativo!");
+      System.out.println();
+      return;
+    }
+
+    if (!DatabaseUtil.executeWithConnectionReturn(connection -> UtilsDAO.isIDPresent(connection, "aluno", idAluno))) {
+      System.err.println("ID do aluno não encontrado!");
+      System.out.println();
+      return;
+    }
+
     this.idAluno = idAluno;
   }
 
