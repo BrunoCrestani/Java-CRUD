@@ -2,6 +2,7 @@ package crudjava;
 
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.List;
 
 public class Menu {
 
@@ -30,76 +31,29 @@ public class Menu {
 
         switch (option) {
           case 'C':
-            System.out.println("Digite o nome do aluno que deve ser inserido: ");
-            Aluno aluno = new Aluno(scanner.nextLine());
-
-            if (aluno.getNome() == null) {
-              break;
-            }
-
-            DatabaseUtil.executeWithConnection(connection -> AlunoDAO.createAluno(connection, aluno));
+            menuUtils.createAluno(scanner);
             break;
 
           case 'R':
-            System.out.println("Digite o id do aluno que deve ser lido: ");
-            int idAlunoToRead = scanner.nextInt();
-
-            Aluno alunoToRead = DatabaseUtil
-                .executeWithConnectionReturn(connection -> AlunoDAO.readAluno(connection, idAlunoToRead));
+            Aluno alunoToRead = menuUtils.read(scanner, "aluno");
 
             if (alunoToRead != null) {
-              System.out.print("ID: " + idAlunoToRead);
-              System.out.println(" Nome: " + alunoToRead.getNome() + "\n");
-              for (Nota nota : alunoToRead.getNotas()) {
-                System.out.println("Nota: " + nota.getResultado());
+              List<Nota> notas = alunoToRead.getNotas();
+              for (int i = 0; i < notas.size(); i++) {
+                Nota nota = notas.get(i);
+                System.out.println("P" + (i + 1) + " - Nota: " + nota.getResultado());
               }
+              System.out.println("Aluno: " + alunoToRead.getNome() + "\n");
               System.out.println();
             }
             break;
 
           case 'U':
-            System.out.println("Digite o id do aluno:");
-            int idAlunoToUpdate = scanner.nextInt();
-
-            if (DatabaseUtil
-                .executeWithConnectionReturn(
-                    connection -> !UtilsDAO.isIDPresent(connection, "aluno", idAlunoToUpdate))) {
-              System.out.println("ID de aluno não encontrado\n");
-              break;
-            }
-
-            scanner.nextLine();
-            System.out.println("Digite o novo nome do aluno:");
-            Aluno alunoToUpdate = new Aluno(scanner.nextLine());
-
-            if (alunoToUpdate.getNome() == null) {
-              System.out.println("Nome de aluno invalido. Atualização interrompida. \n");
-              break;
-            }
-
-            if (DatabaseUtil.executeWithConnectionReturn(
-                connection -> AlunoDAO.isNamePresent(connection, alunoToUpdate.getNome()))) {
-              System.out.println("Aluno com nome " + alunoToUpdate.getNome() + " já cadastrado.\n");
-              break;
-            }
-
-            DatabaseUtil
-                .executeWithConnection(connection -> AlunoDAO.updateAluno(connection, alunoToUpdate, idAlunoToUpdate));
+            menuUtils.updateAluno(scanner);
             break;
 
           case 'D':
-            System.out.println("Digite o indice do aluno:");
-            int idAlunoToDelete = scanner.nextInt();
-            scanner.nextLine();
-
-            if (DatabaseUtil
-                .executeWithConnectionReturn(
-                    connection -> !UtilsDAO.isIDPresent(connection, "aluno", idAlunoToDelete))) {
-              System.out.println("ID não encontrado\n");
-              break;
-            }
-
-            DatabaseUtil.executeWithConnection(connection -> AlunoDAO.deleteAluno(connection, idAlunoToDelete));
+            menuUtils.delete(scanner, "aluno");
             break;
           case 'X':
             running = false;
@@ -145,38 +99,17 @@ public class Menu {
 
         switch (option) {
           case 'C':
-            System.out.println("Digite o resultado da nota que deve ser inserido:");
-            String resultadoToInsert = scanner.next();
-
-            System.out.println("Digite o ID do aluno da nota que deve ser inserido:");
-            int idAlunoToInsert = scanner.nextInt();
-
-            Nota notaToInsert = new Nota(resultadoToInsert, idAlunoToInsert);
-
-            if (notaToInsert.getResultado() == -1 || notaToInsert.getIdAluno() == 0)
-              break;
-
-            DatabaseUtil
-                .executeWithConnection(connection -> NotaDAO.insertNota(connection, notaToInsert));
+            menuUtils.createNota(scanner);
             break;
 
           case 'R':
-            System.out.println("Digite o ID da nota que deve ser lida: ");
-            int idNotaToRead = scanner.nextInt();
-
-            if (DatabaseUtil
-                .executeWithConnectionReturn(connection -> !UtilsDAO.isIDPresent(connection, "nota", idNotaToRead))) {
-              System.out.println("ID de nota não encontrado\n");
-              break;
-            }
-
-            Aluno alunoToRead = DatabaseUtil
-                .executeWithConnectionReturn(connection -> NotaDAO.readNota(connection, idNotaToRead));
+            Aluno alunoToRead = menuUtils.read(scanner, "nota");
 
             if (alunoToRead != null) {
-              System.out.println("ID da nota: " + idNotaToRead);
-              for (Nota nota : alunoToRead.getNotas()) {
-                System.out.println("Nota: " + nota.getResultado());
+              List<Nota> notas = alunoToRead.getNotas();
+              for (int i = 0; i < notas.size(); i++) {
+                Nota nota = notas.get(i);
+                System.out.println("Índice: " + i + " - Nota: " + nota.getResultado());
               }
               System.out.println("Aluno: " + alunoToRead.getNome() + "\n");
               System.out.println();
@@ -184,37 +117,10 @@ public class Menu {
 
             break;
           case 'U':
-            System.out.println("Digite o ID da nota:");
-            int idNotaToUpdate = scanner.nextInt();
-
-            if (DatabaseUtil
-                .executeWithConnectionReturn(
-                    connection -> !UtilsDAO.isIDPresent(connection, "nota", idNotaToUpdate))) {
-              System.out.println("ID de nota não encontrado.\n");
-              break;
-            }
-
-            System.out.println("Digite o novo valor da nota:");
-            String resultadoToUpdate = scanner.next();
-
-            System.out.println("Digite o novo ID do aluno da nota:");
-            int idAlunoToUpdate = scanner.nextInt();
-
-            Nota notaToUpdate = new Nota(resultadoToUpdate, idAlunoToUpdate);
-
-            if (notaToUpdate.getResultado() == -1.00 || notaToUpdate.getIdAluno() == 0) {
-              break;
-            }
-
-            DatabaseUtil
-                .executeWithConnection(
-                    connection -> NotaDAO.updateNota(connection, notaToUpdate, idNotaToUpdate, idAlunoToUpdate));
+            menuUtils.updateNota(scanner);
             break;
           case 'D':
-            System.out.println("Digite a nota:");
-            int notaToDelete = scanner.nextInt();
-
-            DatabaseUtil.executeWithConnection(connection -> NotaDAO.deleteNota(connection, notaToDelete));
+            menuUtils.delete(scanner, "nota");
             break;
           case 'X':
             running = false;

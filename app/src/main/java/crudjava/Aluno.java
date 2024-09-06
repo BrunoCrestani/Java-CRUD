@@ -22,14 +22,16 @@ public class Aluno {
 
   public void setNome(String nome) {
 
+    nome = nome.trim();
+
     if (nome.length() > 100) {
       System.err.println("Nome muito grande!");
       System.out.println();
       return;
     }
 
-    if (nome.length() < 1) {
-      System.err.println("Nome não pode ser vazio!");
+    if (nome.isEmpty()) {
+      System.err.println("Nome não pode ser vazio ou apenas espaços!");
       System.out.println();
       return;
     }
@@ -46,15 +48,6 @@ public class Aluno {
         System.out.println();
         return;
       }
-    }
-
-    boolean isNamePresent = DatabaseUtil
-        .executeWithConnectionReturn(connection -> AlunoDAO.isNamePresent(connection, nome));
-
-    if (isNamePresent) {
-      System.err.println("Nome já cadastrado!");
-      System.out.println();
-      return;
     }
 
     this.nome = nome;
